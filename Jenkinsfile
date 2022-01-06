@@ -1,56 +1,19 @@
-pipeline {
-
-    agent {
-        node {
-            label 'TestNode'
-        }
+pipeline{
+  agent any
+  stages{
+    stage("Git Checkout"){
+      steps{
+            git credentialsId: 'githu', url: 'https://github.com/maheshkorlapati123/Master.git' 
+           }
+          }
+     stage("Maven Build"){
+       steps{
+            sh "mvn clean package"
+            
+             }
+            }
+			 stage ('deploy'){
+        deploy adapters: [tomcat8(credentialsId: '3.143.230.67', path: '', url: 'http://3.143.230.67:8080/')], contextPath: null, war: '**/*.war'
     }
-
-    
-
-    stages {
-        
-      
-
-        stage('Code Checkout') {
-            steps {
-                checkout([
-                    $class: 'GitSCM', 
-                    userRemoteConfigs: [[url: 'https://github.com/maheshkorlapati123/Master.git']]
-                ])
-            }
-        }
-
-        stage(' Unit Testing') {
-            steps {
-                sh """
-                echo "Running Unit Tests"
-                """
-            }
-        }
-
-        stage('Code Analysis') {
-            steps {
-                sh """
-                echo "Running Code Analysis"
-                """
-            }
-        }
-
-        stage('Build Deploy Code') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                sh """
-                echo "Building Artifact"
-                """
-
-                sh """
-                echo "Deploying Code"
-                """
-            }
-        }
-
-    }   
-}
+      }
+    }
